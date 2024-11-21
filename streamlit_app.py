@@ -15,53 +15,57 @@ def generate_training_plan(vdot, num_runs_per_week, weeks=4, longest_run_past_mo
 
     plan = []
     
-    for week in range(1, weeks + 1):
-        weekly_plan = f"Week {week} Training Plan:"
-        
-        # Add easy runs (split into varied distances)
-        easy_runs = []
-        for i in range(num_runs_per_week - 2):  # Subtract interval sessions and long run
-            distance = 5 + (week - 1) * 0.5  # Increase easy run distance each week
-            easy_runs.append(f"  - Easy run {i + 1}: {distance:.1f} km at {easy_pace} min/km")
-        
-        # Add interval sessions if applicable
-        if num_runs_per_week >= 5:
-            easy_runs.append(f"  - Interval run 1: {interval_pace} min/km for 6x400m intervals")
-            easy_runs.append(f"  - Interval run 2: {interval_pace} min/km for 6x400m intervals")
-        elif num_runs_per_week >= 3:
-            easy_runs.append(f"  - Interval run: {interval_pace} min/km for 6x400m intervals")
-        
-        # Longest run (user input, no history logic)
-        longest_run_distance = longest_run_past_month + (week - 1) * 2  # Increase by 2 km each week
+    # Calculate the 5K pace (minutes per km) from the PB time
+    pace_per_km = five_k_pb_minutes / 5  # 5K is 5 kilometers, so divide the total PB time by 5
 
-        # Add the long run to the weekly plan
-        easy_runs.append(f"  - Long run: {longest_run_distance:.1f} km at {long_run_pace:.2f} min/km")
-        
-        # Calculate total weekly mileage (sum of easy runs and the long run)
-        weekly_mileage = 0
-        for run in easy_runs:
-            if "km" in run:
-                # Extract the distance value before the 'km'
-                km_distance = float(run.split(":")[1].split("km")[0].strip()) 
-                weekly_mileage += km_distance
-        
-        plan.append(weekly_plan)
-        plan.extend(easy_runs)
-        plan.append(f"  - Total weekly mileage: {weekly_mileage:.1f} km")
-        plan.append("")  # Add a blank line between weeks
+    # Define a base range for easy runs (e.g., 70% to 90% of the longest run distance)
+    min_easy_run_distance = longest_run_distance * 0.7  # 70% of longest run distance
+    max_easy_run_distance = longest_run_distance * 0.9  # 90% of longest run distance
     
+    current_long_run_distance = longest_run_distance  # Initialize the long run distance
+    
+    for week in range(1, 5):  # Assuming a 4-week plan
+        weekly_plan = f"Week {week} Training Plan:"
+        plan.append(weekly_plan)
+
+        # Add easy runs with varying distances
+        for i in range(num_runs_per_week - 1):  # Easy runs are the total runs minus the long run
+            easy_run_distance = random.uniform(min_easy_run_distance, max_easy_run_distance)
+            easy_run_pace = pace_per_km * 1.2  # Easy run pace is 20% slower than the base pace
+            plan.append(f" - Easy run {i+1}: {round(easy_run_distance, 2)} km at {round(easy_run_pace, 2)} min/km")
+        
+        # Add long run
+        long_run_pace = pace_per_km * 1.3  # Long run pace is 30% slower than the base pace
+        plan.append(f" - Long run: {round(current_long_run_distance, 2)} km at {round(long_run_pace, 2)} min/km")
+
+        # Calculate weekly mileage
+        total_easy_runs_distance = sum(random.uniform(min_easy_run_distance, max_easy_run_distance) for _ in range(num_runs_per_week - 1))
+        weekly_mileage = total_easy_runs_distance + current_long_run_distance
+        plan.append(f" - Total weekly mileage: {round(weekly_mileage, 2)} km")
+        plan.append("")  # Empty line between weeks
+
+        # Increase long run distance by 5% for the next week
+        current_long_run_distance *= 1.05
+
     return "\n".join(plan)
 
 # Streamlit App
 def app():
     st.title('Running Training Plan Generator')
 
-    # Input fields for the 5K time in minutes and seconds
-    mins = st.number_input('Enter 5K time - Minutes:', min_value=0, max_value=100, value=16)
-    secs = st.number_input('Enter 5K time - Seconds:', min_value=0, max_value=59, value=0)
+# User inputs
+five_k_pb_minutes = st.number_input("Enter your 5K PB time (in minutes):", min_value=1, value=25, step=1)
+num_runs_per_week = st.number_input("Number of runs per week:", min_value=1, max_value=7, value=4)
+longest_run_distance = st.number_input("Longest run distance (in km):", min_value=1, value=10, step=1)
+
+# Generate and display the plan when the user clicks the button
+if st.button("Generate Training Plan"):
+    # Generate the plan
+    training_plan = generate_training_plan(num_runs_per_week, five_k_pb_minutes, longest_run_distance)
     
-    # Calculate the total 5K time in minutes
-    total_time = mins + secs / 60.0
-    
-    # Calculate VDOT based on the total 5K time (simple example, use a better method if needed)
-    vdot = 34  # Placeholder for VDOT calculation (you can adjust this to use a formula
+    # Display the result in the app
+    st.subheader("Your 4-Week Training Plan:")
+    st.text(training_plan)
+
+
+   
