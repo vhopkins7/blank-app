@@ -1,6 +1,6 @@
 import streamlit as st
 
-# Function to calculate training paces
+# Function to calculate training paces based on VDOT
 def get_training_paces(vdot):
     # Placeholder for easy run pace, interval pace, and long run pace calculation based on VDOT
     easy_pace = 4.5  # Set to target a pace around 4.5 min/km for faster runners
@@ -10,7 +10,7 @@ def get_training_paces(vdot):
     return easy_pace, interval_pace, long_run_pace
 
 # Function to calculate weekly training plan
-def generate_training_plan(vdot, num_runs_per_week, weeks=4):
+def generate_training_plan(vdot, num_runs_per_week, weeks=4, longest_run_past_month=10):
     easy_pace, interval_pace, long_run_pace = get_training_paces(vdot)
 
     plan = []
@@ -31,8 +31,8 @@ def generate_training_plan(vdot, num_runs_per_week, weeks=4):
         elif num_runs_per_week >= 3:
             easy_runs.append(f"  - Interval run: {interval_pace} min/km for 6x400m intervals")
         
-        # Calculate the longest run distance (increase by 2 km each week)
-        longest_run_distance = 10 + (week - 1) * 2  # Initial increase of 2 km each week
+        # Calculate the longest run distance (user input + increase by 2 km each week)
+        longest_run_distance = longest_run_past_month + (week - 1) * 2  # Increase by 2 km each week
 
         # Add the long run to the weekly plan
         easy_runs.append(f"  - Long run: {longest_run_distance:.1f} km at {long_run_pace:.2f} min/km")
@@ -67,9 +67,12 @@ def app():
     # Input field for the length of the training plan
     training_weeks = st.selectbox('Training plan length (weeks):', [4, 6, 8, 10, 12, 14, 16], index=3)
 
+    # Input field for the longest run in the past month
+    longest_run_past_month = st.number_input('Longest run in the past month (in km):', min_value=1, value=10)
+
     # Generate and display the training plan
     if st.button('Generate Training Plan'):
-        plan = generate_training_plan(vdot, num_runs_per_week, weeks=training_weeks)
+        plan = generate_training_plan(vdot, num_runs_per_week, weeks=training_weeks, longest_run_past_month=longest_run_past_month)
         st.markdown(f"```{plan}```")  # Use markdown for better formatting
 
 if __name__ == '__main__':
