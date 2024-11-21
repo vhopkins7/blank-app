@@ -31,7 +31,7 @@ def generate_training_plan(vdot, num_runs_per_week, weeks=4, longest_run_past_mo
         elif num_runs_per_week >= 3:
             easy_runs.append(f"  - Interval run: {interval_pace} min/km for 6x400m intervals")
         
-        # Calculate the longest run distance (user input + increase by 2 km each week)
+        # Longest run (user input, no history logic)
         longest_run_distance = longest_run_past_month + (week - 1) * 2  # Increase by 2 km each week
 
         # Add the long run to the weekly plan
@@ -82,4 +82,3 @@ def app():
 
 if __name__ == '__main__':
     app()
-
