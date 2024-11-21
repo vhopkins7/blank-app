@@ -14,7 +14,6 @@ def generate_training_plan(vdot, num_runs_per_week, weeks=4):
     easy_pace, interval_pace, long_run_pace = get_training_paces(vdot)
 
     plan = []
-    longest_run_distance_history = []  # To track the longest run over the past 5 weeks
     
     for week in range(1, weeks + 1):
         weekly_plan = f"Week {week} Training Plan:"
@@ -32,22 +31,19 @@ def generate_training_plan(vdot, num_runs_per_week, weeks=4):
         elif num_runs_per_week >= 3:
             easy_runs.append(f"  - Interval run: {interval_pace} min/km for 6x400m intervals")
         
-        # Calculate the longest run distance
-        if week <= 5:
-            longest_run_distance = 10 + (week - 1) * 2  # Initial increase of 2 km each week
-        else:
-            # Get the longest run from the previous 5 weeks
-            longest_run_distance = max(longest_run_distance_history[-5:])
-        
-        longest_run_distance_history.append(longest_run_distance)
+        # Calculate the longest run distance (increase by 2 km each week)
+        longest_run_distance = 10 + (week - 1) * 2  # Initial increase of 2 km each week
+
+        # Add the long run to the weekly plan
         easy_runs.append(f"  - Long run: {longest_run_distance:.1f} km at {long_run_pace:.2f} min/km")
         
-        # Add weekly mileage
+        # Calculate total weekly mileage (sum of easy runs and the long run)
         weekly_mileage = sum([float(run.split(" ")[2]) for run in easy_runs if "km" in run])
+        
         plan.append(weekly_plan)
         plan.extend(easy_runs)
         plan.append(f"  - Total weekly mileage: {weekly_mileage:.1f} km")
-        plan.append("")
+        plan.append("")  # Add a blank line between weeks
     
     return "\n".join(plan)
 
@@ -74,7 +70,7 @@ def app():
     # Generate and display the training plan
     if st.button('Generate Training Plan'):
         plan = generate_training_plan(vdot, num_runs_per_week, weeks=training_weeks)
-        st.text(plan)
+        st.markdown(f"```{plan}```")  # Use markdown for better formatting
 
 if __name__ == '__main__':
     app()
