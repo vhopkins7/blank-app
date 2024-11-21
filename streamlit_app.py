@@ -29,7 +29,7 @@ def generate_training_plan(pace_per_km, num_runs_per_week, longest_run_distance)
     return "\n".join(plan)
 
 # Create Streamlit app layout
-st.title("Personalized 5K Training Plan")
+st.title("Personalized 5K Training Plan for meows")
 
 # Input fields
 st.header("Enter Your Details")
