@@ -2,10 +2,10 @@ import streamlit as st
 
 # Function to calculate training paces based on VDOT
 def get_training_paces(vdot):
-    # Placeholder for easy run pace, interval pace, and long run pace calculation based on VDOT
-    easy_pace = 4.5  # Set to target a pace around 4.5 min/km for faster runners
-    interval_pace = 4.5 + (vdot - 20) * 0.08  # Interval pace is usually faster (90-100% of race pace)
-    long_run_pace = 5.5 + (vdot - 20) * 0.06  # Long run pace is slower (75-80% of race pace)
+    # For simplicity, assume fixed paces based on VDOT
+    easy_pace = 4.5  # Example pace (min/km) for easy runs
+    interval_pace = 4.0  # Example pace (min/km) for interval runs
+    long_run_pace = 5.0  # Example pace (min/km) for long runs
     
     return easy_pace, interval_pace, long_run_pace
 
@@ -20,7 +20,7 @@ def generate_training_plan(vdot, num_runs_per_week, weeks=4, longest_run_past_mo
         
         # Add easy runs (split into varied distances)
         easy_runs = []
-        for i in range(num_runs_per_week - 2):  # Subtract the interval sessions and long run
+        for i in range(num_runs_per_week - 2):  # Subtract interval sessions and long run
             distance = 5 + (week - 1) * 0.5  # Increase easy run distance each week
             easy_runs.append(f"  - Easy run {i + 1}: {distance:.1f} km at {easy_pace} min/km")
         
@@ -63,22 +63,5 @@ def app():
     # Calculate the total 5K time in minutes
     total_time = mins + secs / 60.0
     
-    # Calculate VDOT based on the total 5K time
-    vdot = 34  # Placeholder for VDOT calculation (you can adjust this to use a formula)
-    
-    # Input field for the number of runs per week
-    num_runs_per_week = st.slider('Number of runs per week:', 1, 7, 5)
-
-    # Input field for the length of the training plan
-    training_weeks = st.selectbox('Training plan length (weeks):', [4, 6, 8, 10, 12, 14, 16], index=3)
-
-    # Input field for the longest run in the past month
-    longest_run_past_month = st.number_input('Longest run in the past month (in km):', min_value=1, value=10)
-
-    # Generate and display the training plan
-    if st.button('Generate Training Plan'):
-        plan = generate_training_plan(vdot, num_runs_per_week, weeks=training_weeks, longest_run_past_month=longest_run_past_month)
-        st.markdown(f"```{plan}```")  # Use markdown for better formatting
-
-if __name__ == '__main__':
-    app()
+    # Calculate VDOT based on the total 5K time (simple example, use a better method if needed)
+    vdot = 34  # Placeholder for VDOT calculation (you can adjust this to use a formula
