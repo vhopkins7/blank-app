@@ -38,7 +38,12 @@ def generate_training_plan(vdot, num_runs_per_week, weeks=4, longest_run_past_mo
         easy_runs.append(f"  - Long run: {longest_run_distance:.1f} km at {long_run_pace:.2f} min/km")
         
         # Calculate total weekly mileage (sum of easy runs and the long run)
-        weekly_mileage = sum([float(run.split(" ")[2]) for run in easy_runs if "km" in run])
+        weekly_mileage = 0
+        for run in easy_runs:
+            if "km" in run:
+                # Extract the distance value before the 'km'
+                km_distance = float(run.split(":")[1].split("km")[0].strip()) 
+                weekly_mileage += km_distance
         
         plan.append(weekly_plan)
         plan.extend(easy_runs)
@@ -77,3 +82,4 @@ def app():
 
 if __name__ == '__main__':
     app()
+
